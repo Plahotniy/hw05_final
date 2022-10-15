@@ -18,3 +18,5 @@ if settings.DEBUG:
     )
 
 handler404 = 'core.views.page_404'
+handler403 = 'core.views.page_403'
+handler500 = 'core.views.page_500'
