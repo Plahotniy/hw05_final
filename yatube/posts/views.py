@@ -105,8 +105,8 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    page_obj = get_page(
-        Post.objects.filter(author__following__user=request.user), request)
+    posts = Post.objects.filter(author__following__user=request.user)
+    page_obj = get_page(posts, request)
     context = {'page_obj': page_obj,
                }
     return render(request, 'posts/follow.html', context)
@@ -123,12 +123,12 @@ def profile_follow(request, username):
             user=request.user,
             author=author,
         )
-        return redirect('posts:profile', username=username)
+    return redirect('posts:profile', username=username)
 
 
 @login_required
 def profile_unfollow(request, username):
-    author = get_object_or_404(User, username)
+    author = get_object_or_404(User, username=username)
     follower = get_object_or_404(
         Follow,
         user=request.user,
@@ -136,4 +136,4 @@ def profile_unfollow(request, username):
     )
     follower.delete()
 
-    return redirect('posts:profile', username)
+    return redirect('posts:profile', username=username)
