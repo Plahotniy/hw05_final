@@ -41,20 +41,21 @@ class PostsViewsTest(TestCase):
         self.authorized_user.force_login(self.user)
         cache.clear()
 
-    # def tearDown(self) -> None:
-    #     # cache.clear()
-
     def test_cache_index(self):
         """Тестируем работу кеша на главное странице"""
-        add = self.authorized_client.get(reverse('posts:index')).content
-        self.post.delete()
+        post = Post.objects.create(
+            author=self.author,
+            group=self.group,
+            text='cache text',
+        )
+        add = self.authorized_client.get(reverse('posts:index'))
+        self.assertIn(post.text, str(add.content))
+        post.delete()
         delete = self.authorized_client.get(reverse('posts:index')).content
-        self.assertEqual(add,
-                         delete)
-        self.assertIn(self.post.text, str(delete))
+        self.assertIn(post.text, str(delete))
         cache.clear()
         clr = self.authorized_client.get(reverse('posts:index')).content
-        self.assertNotEqual(clr, delete)
+        self.assertNotIn(post.text, str(clr))
 
     def test_pages_uses_correct_template(self):
         """Открываются правильные шаблоны"""
@@ -88,7 +89,7 @@ class PostsViewsTest(TestCase):
         response = self.authorized_client.get(reverse('posts:index'))
         first_object = response.context['page_obj'][0]
         self.assertEqual(first_object.text, self.post.text)
-        # self.assertEqual(first_object.image, self.post.image)
+        self.assertEqual(first_object.image, self.post.image)
 
     def test_group_page_show_correct_context(self):
         """В group_list передан корректный context"""
@@ -98,7 +99,7 @@ class PostsViewsTest(TestCase):
         first_object = response.context['page_obj'][0]
         self.assertEqual(first_object.text, self.post.text)
         self.assertEqual(first_object.group, self.post.group)
-        # self.assertEqual(first_object.image, self.post.image)
+        self.assertEqual(first_object.image, self.post.image)
 
     def test_profile_page_show_correct_context(self):
         """В profile передан корректный context"""
@@ -110,7 +111,7 @@ class PostsViewsTest(TestCase):
         first_object = response.context['page_obj'][0]
         self.assertEqual(first_object.text, self.post.text)
         self.assertEqual(first_object.author, self.post.author)
-        # self.assertEqual(first_object.image, self.post.image)
+        self.assertEqual(first_object.image, self.post.image)
 
     def test_post_detail_page_show_correct_context(self):
         """В post_detail передан корректный context"""
@@ -121,7 +122,7 @@ class PostsViewsTest(TestCase):
         )
         first_object = response.context['post']
         self.assertEqual(first_object.text, self.post.text)
-        # self.assertEqual(first_object.image, self.post.image)
+        self.assertEqual(first_object.image, self.post.image)
 
     def test_post_create_page_show_correct_context(self):
         """В create передан корректный context"""
