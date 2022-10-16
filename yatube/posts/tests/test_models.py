@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import TestCase
 
 from ..models import Comment, Group, Post
@@ -22,8 +23,12 @@ class PostModelTest(TestCase):
         )
         cls.comment = Comment.objects.create(
             author=cls.author,
-            text='Тестовый комментарий'
+            text='Тестовый комментарий',
+            post_id=cls.post.pk
         )
+
+    def setUp(self) -> None:
+        cache.clear()
 
     def test_models_have_correct_objects_name(self):
         """Проверяем что у моделей корректно работает __str__."""

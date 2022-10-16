@@ -3,6 +3,7 @@ import tempfile
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -45,6 +46,7 @@ class PostFormTest(TestCase):
 
     def setUp(self) -> None:
         # создаем авторизованного клиента и неавторизованного
+        cache.clear()
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client_non_author = Client()

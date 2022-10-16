@@ -17,6 +17,10 @@ def index(request):
 def group_post(request, slug):
     group = get_object_or_404(Group, slug=slug)
     page_obj = get_page(group.posts.all(), request)
+    # context = dict(
+    #     group=group,
+    #     page_obj=page_obj,
+    # )
     context = {
         'group': group,
         'page_obj': page_obj,
@@ -31,6 +35,11 @@ def profile(request, username):
     if request.user.is_authenticated:
         following = Follow.objects.filter(user=request.user,
                                           author=author).exists()
+        # context = dict(
+        #     author=author,
+        #     page_obj=page_obj,
+        #     following=following,
+        # )
     context = {
         'author': author,
         'page_obj': page_obj,
@@ -45,6 +54,11 @@ def post_detail(request, post_id):
         request.POST or None
     )
     comments = post.comments.all()
+    # context = dict(
+    #     post=post,
+    #     form=form,
+    #     comments=comments
+    # )
     context = {
         'post': post,
         'form': form,
@@ -107,6 +121,7 @@ def add_comment(request, post_id):
 def follow_index(request):
     posts = Post.objects.filter(author__following__user=request.user)
     page_obj = get_page(posts, request)
+    # context = dict(page_obj=page_obj)
     context = {'page_obj': page_obj,
                }
     return render(request, 'posts/follow.html', context)

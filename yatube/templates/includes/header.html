@@ -30,7 +30,7 @@
              href="{% url 'users:logout' %}">Выйти</a>
         </li>
         <li>
-          Пользователь: {{ user.username }}
+          <span class="nav-link"> Пользователь: {{ user.username }}</span>
         </li>
         {% else %}
         <li class="nav-item"> 
