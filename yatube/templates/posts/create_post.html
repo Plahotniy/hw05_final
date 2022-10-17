@@ -26,12 +26,20 @@
                             {{ field.label }}
                           </label>
                           {{ field }}
+                        {% if field.help_text %}
+                        <p class="form-text text-muted">{{ field.help_text|safe }}</p>
+                        {% endif %}
                         </div>
                       {% endfor %}
-                    <small id="id_group-help" class="form-text text-muted">
-                        {{ field.help_text }}
-{#                      Группа, к которой будет относиться пост#}
-                    </small>
+                          <ul>
+                            {% for field in form %}
+                              {% if field.errors %}
+                                  <div class="alert alert-danger"  role="alert">
+                                  {{ field.errors|striptags }}
+                                  </div>
+                              {% endif %}
+                            {% endfor %}
+                          </ul>
                   </div>
                   <div class="d-flex justify-content-end">
                     <button type="submit" class="btn btn-primary">

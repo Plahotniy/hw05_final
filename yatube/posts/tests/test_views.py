@@ -234,9 +234,7 @@ class FollowIndex(TestCase):
                                            }))
         self.assertTrue(
             Follow.objects.filter(
-                user=self.user_1,
-                author=self.author,
-            ).exists()
+                user=self.user_1, author=self.author, ).exists()
         )
         follow_count = Follow.objects.count()
         Follow.objects.filter(user=self.user_1, author=self.author).delete()
@@ -248,7 +246,6 @@ class PaginatorTest(TestCase):
     def setUpClass(cls):
         # создаем тестового пользователя, группу и посты
         super().setUpClass()
-        # cache.clear()
         cls.author = User.objects.create_user(username='auth')
         cls.group = Group.objects.create(
             title='Тестовая группа',
@@ -258,7 +255,7 @@ class PaginatorTest(TestCase):
         cls.post = []
         for i in range(POST_TEST_OFFSET):
             cls.post.append(Post.objects.create(
-                text=f'Тестовый пост {i}',
+                text=f'Test post {i}',
                 author=cls.author,
                 group=cls.group,
             )
@@ -281,3 +278,26 @@ class PaginatorTest(TestCase):
         count_posts = len(response.context['page_obj'])
         self.assertEqual(
             count_posts, POST_TEST_OFFSET - settings.POST_PER_PAGE)
+
+    def test_paginator_cache(self):
+        """
+        Тестируем работу кеша в пагинаторе.
+        """
+        self.post.append(Post.objects.create(
+            text='cache post',
+            author=self.author,
+            group=self.group,
+        ))
+        post = Post.objects.latest('pub_date')
+        response = self.guest_client.get(reverse('posts:index'))
+        self.assertIn(post.text, str(response.content))
+        Post.objects.filter(
+            text='cache post',
+            author=self.author,
+            group=self.group,
+        ).delete()
+        response_del = self.guest_client.get(reverse('posts:index'))
+        self.assertIn(post.text, str(response_del.content))
+        cache.clear()
+        response_clr = self.guest_client.get(reverse('posts:index'))
+        self.assertNotIn(post.text, str(response_clr.content))

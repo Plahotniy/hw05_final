@@ -107,6 +107,37 @@ class PostFormTest(TestCase):
         self.assertEqual(post.text, form_data['text'])
         self.assertEqual(str(post.image), 'posts/small.gif')
 
+    def test_post_with_non_img(self):
+        """
+        Тестируем, что форма принимает только изображения, и не создает пост
+        с другим типом файлов.
+        """
+        post_count = Post.objects.count()
+        mp3 = b'file_content'
+        uploaded = SimpleUploadedFile(
+            name='file.mp3',
+            content=mp3,
+            content_type='music/mp3'
+        )
+        form_data = {
+            'text': 'Тестовый текст 2',
+            'author': self.author,
+            'group': self.group.pk,
+            'image': uploaded,
+        }
+        response = self.authorized_client.post(
+            reverse('posts:post_create'),
+            data=form_data,
+            follow=True
+        )
+        self.assertEqual(post_count, Post.objects.count())
+        self.assertFormError(
+            response,
+            'form',
+            'image',
+            'Загрузите правильное изображение. Файл, который вы загрузили, '
+            'поврежден или не является изображением.')
+
     def test_edit_post(self):
         """После редактирования поста автором, пост в БД изменяется"""
         form_data = {
